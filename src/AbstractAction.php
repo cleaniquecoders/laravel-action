@@ -2,7 +2,7 @@
 
 namespace Bekwoh\LaravelAction;
 
-use App\Exceptions\ActionException;
+use Bekwoh\LaravelAction\Exceptions\ActionException;
 use Bekwoh\LaravelContract\Contracts\Execute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
