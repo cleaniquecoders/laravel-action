@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use App\Actions\AbstractAction as Action;
+use Bekwoh\LaravelAction\AbstractAction as Action;
 use {{ model_namespace }};
 
 class {{ class }} extends Action
