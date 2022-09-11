@@ -2,9 +2,9 @@
 
 namespace Bekwoh\LaravelAction\Tests;
 
+use Bekwoh\LaravelAction\LaravelActionServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use Bekwoh\LaravelAction\LaravelActionServiceProvider;
 
 class TestCase extends Orchestra
 {

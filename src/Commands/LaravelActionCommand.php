@@ -51,8 +51,7 @@ class LaravelActionCommand extends GeneratorCommand
     /**
      * Resolve the fully-qualified path to the stub.
      *
-     * @param string $stub
-     *
+     * @param  string  $stub
      * @return string
      */
     protected function resolveStubPath($stub)
@@ -66,7 +65,6 @@ class LaravelActionCommand extends GeneratorCommand
      * Get the default namespace for the class.
      *
      * @param  string  $rootNamespace
-     *
      * @return string
      */
     protected function getDefaultNamespace($rootNamespace)
@@ -118,11 +116,11 @@ class LaravelActionCommand extends GeneratorCommand
 
     protected function getModelNamespace()
     {
-        $namespace = $this->option('namespace') 
+        $namespace = $this->option('namespace')
             ? $this->option('namespace')
             : config('action.model_namespace');
 
-        return $namespace . $this->getModel();
+        return $namespace.$this->getModel();
     }
 
     public function throwExceptionIfMissingModel()
