@@ -2,9 +2,9 @@
 
 namespace Bekwoh\LaravelAction;
 
-use Bekwoh\LaravelAction\Commands\LaravelActionCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
+use Bekwoh\LaravelAction\Commands\LaravelActionCommand;
 
 class LaravelActionServiceProvider extends PackageServiceProvider
 {
@@ -17,6 +17,7 @@ class LaravelActionServiceProvider extends PackageServiceProvider
          */
         $package
             ->name('laravel-action')
+            ->hasConfigFile()
             ->hasCommand(LaravelActionCommand::class);
     }
 }
