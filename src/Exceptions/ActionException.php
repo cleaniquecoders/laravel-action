@@ -10,4 +10,9 @@ class ActionException extends Exception
     {
         return new self("Missing model property in class $class");
     }
+
+    public static function emptyModelProperty($class)
+    {
+        return new self("Empty model property in class $class");
+    }
 }

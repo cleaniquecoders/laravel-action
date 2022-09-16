@@ -2,15 +2,12 @@
 
 namespace {{ namespace }};
 
-use Bekwoh\LaravelAction\AbstractAction as Action;
-use {{ model_namespace }};
+use Bekwoh\LaravelContract\Contracts\Execute;
 
-class {{ class }} extends Action
+class {{ class }} implements Execute
 {
-    public $model = {{ model }}::class;
-
-    public function rules(): array
+    public function execute()
     {
-        return [];
+        
     }
 }
