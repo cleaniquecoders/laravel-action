@@ -14,9 +14,13 @@ abstract class AbstractAction implements Execute
     abstract public function rules(): array;
 
     protected array $constrainedBy = [];
+
     protected array $uuid2id = [];
+
     protected array $hashFields = [];
+
     protected array $encryptFields = [];
+
     protected Model $record;
 
     public function __construct(public array $inputs)
