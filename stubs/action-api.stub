@@ -17,7 +17,7 @@ class {{ class }} implements Api
         // do your things
 
         if (true) {
-            return []
+            return [];
         }
 
         $this->code = 404;
