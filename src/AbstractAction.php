@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions;
+namespace Bekwoh\LaravelAction;
 
 use Bekwoh\LaravelAction\Exceptions\ActionException;
 use Bekwoh\LaravelContract\Contracts\Execute;
