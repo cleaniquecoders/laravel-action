@@ -165,7 +165,6 @@ abstract class AbstractAction implements Execute
 
     public function prepare()
     {
-
     }
 
     public function execute()
