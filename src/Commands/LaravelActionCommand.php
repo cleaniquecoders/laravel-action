@@ -46,7 +46,7 @@ class LaravelActionCommand extends GeneratorCommand
         }
 
         if ($this->option('create-update')) {
-            return $this->resolveStubPath('/stubs/action-api.stub');
+            return $this->resolveStubPath('/stubs/action-create-or-update.stub');
         }
 
         return $this->resolveStubPath('/stubs/action.stub');
