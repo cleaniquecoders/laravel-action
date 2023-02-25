@@ -129,7 +129,11 @@ class LaravelActionCommand extends GeneratorCommand
 
     public function throwExceptionIfMissingModel()
     {
-        if (empty($this->option('model')) && ! $this->option('menu') && ! $this->option('api')) {
+        if (! $this->option('create-update')) {
+            return;
+        }
+
+        if (empty($this->option('model'))) {
             throw new RuntimeException('Missing model option.');
         }
     }
