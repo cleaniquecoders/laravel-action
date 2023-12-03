@@ -1,9 +1,9 @@
 <?php
 
-namespace Bekwoh\LaravelAction;
+namespace CleaniqueCoders\LaravelAction;
 
-use Bekwoh\LaravelAction\Exceptions\ActionException;
-use Bekwoh\LaravelContract\Contracts\Execute;
+use CleaniqueCoders\LaravelAction\Exceptions\ActionException;
+use CleaniqueCoders\LaravelContract\Contracts\Execute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;

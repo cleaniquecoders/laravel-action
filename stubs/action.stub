@@ -2,12 +2,12 @@
 
 namespace {{ namespace }};
 
-use Bekwoh\LaravelContract\Contracts\Execute;
+use CleaniqueCoders\LaravelContract\Contracts\Execute;
 
 class {{ class }} implements Execute
 {
     public function execute()
     {
-        
+
     }
 }

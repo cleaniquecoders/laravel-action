@@ -1,6 +1,6 @@
 <?php
 
-namespace Bekwoh\LaravelAction\Exceptions;
+namespace CleaniqueCoders\LaravelAction\Exceptions;
 
 use Exception;
 

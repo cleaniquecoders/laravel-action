@@ -1,8 +1,8 @@
 <?php
 
-namespace Bekwoh\LaravelAction;
+namespace CleaniqueCoders\LaravelAction;
 
-use Bekwoh\LaravelAction\Commands\LaravelActionCommand;
+use CleaniqueCoders\LaravelAction\Commands\LaravelActionCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 

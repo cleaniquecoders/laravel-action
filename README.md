@@ -1,9 +1,9 @@
 # Simple Actionable for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/bekwoh/laravel-action.svg?style=flat-square)](https://packagist.org/packages/bekwoh/laravel-action)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/bekwoh/laravel-action/run-tests?label=tests)](https://github.com/bekwoh/laravel-action/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/bekwoh/laravel-action/Fix%20PHP%20code%20style%20issues?label=code%20style)](https://github.com/bekwoh/laravel-action/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/bekwoh/laravel-action.svg?style=flat-square)](https://packagist.org/packages/bekwoh/laravel-action)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/cleaniquecoders/laravel-action.svg?style=flat-square)](https://packagist.org/packages/cleaniquecoders/laravel-action)
+[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/cleaniquecoders/laravel-action/run-tests?label=tests)](https://github.com/cleaniquecoders/laravel-action/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/cleaniquecoders/laravel-action/Fix%20PHP%20code%20style%20issues?label=code%20style)](https://github.com/cleaniquecoders/laravel-action/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/cleaniquecoders/laravel-action.svg?style=flat-square)](https://packagist.org/packages/cleaniquecoders/laravel-action)
 
 Simple Actionable for Laravel.
 
@@ -12,7 +12,7 @@ Simple Actionable for Laravel.
 You can install the package via composer:
 
 ```bash
-composer require bekwoh/laravel-action
+composer require cleaniquecoders/laravel-action
 ```
 
 You can publish the config file with:
@@ -25,19 +25,19 @@ Optionally, you can publish the views using
 
 ## Usage
 
-```bash 
+```bash
 php artisan make:action User\\CreateOrUpdateUser --model=User
 ```
 
 This will create an action in `app\Actions\User`:
 
-```php 
+```php
 <?php
 
 namespace App\Actions\User;
 
 use App\Models\User;
-use Bekwoh\LaravelAction\AbstractAction as Action;
+use CleaniqueCoders\LaravelAction\AbstractAction as Action;
 
 class CreateOrUpdateUser extends Action
 {
@@ -52,7 +52,7 @@ class CreateOrUpdateUser extends Action
 
 Then you can use it like:
 
-```php 
+```php
 use App\Actions\User\CreateOrUpdateUser;
 
 $user = (new CreateOrUpdateUser(['name' => 'Nasrul Hazim', 'email' => 'nasrul@work.com']));

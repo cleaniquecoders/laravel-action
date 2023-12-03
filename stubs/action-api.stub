@@ -2,8 +2,8 @@
 
 namespace {{ namespace }};
 
-use Bekwoh\LaravelAction\Concerns\InteractsWithApi;
-use Bekwoh\LaravelContract\Contracts\Api;
+use CleaniqueCoders\LaravelAction\Concerns\InteractsWithApi;
+use CleaniqueCoders\LaravelContract\Contracts\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\Resources\Json\ResourceCollection;

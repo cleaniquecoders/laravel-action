@@ -1,6 +1,6 @@
 <?php
 
-namespace Bekwoh\LaravelAction;
+namespace CleaniqueCoders\LaravelAction;
 
 class LaravelAction
 {
