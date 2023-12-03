@@ -1,6 +1,6 @@
 <?php
 
-namespace Bekwoh\LaravelAction\Commands;
+namespace CleaniqueCoders\LaravelAction\Commands;
 
 use Illuminate\Console\GeneratorCommand;
 use RuntimeException;

@@ -1,16 +1,16 @@
 <?php
 
-namespace Bekwoh\LaravelAction\Facades;
+namespace CleaniqueCoders\LaravelAction\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Bekwoh\LaravelAction\LaravelAction
+ * @see \CleaniqueCoders\LaravelAction\LaravelAction
  */
 class LaravelAction extends Facade
 {
     protected static function getFacadeAccessor()
     {
-        return \Bekwoh\LaravelAction\LaravelAction::class;
+        return \CleaniqueCoders\LaravelAction\LaravelAction::class;
     }
 }

@@ -1,12 +1,12 @@
 {
-    "name": "bekwoh/laravel-action",
+    "name": "cleaniquecoders/laravel-action",
     "description": "Simple Actionable for Laravel",
     "keywords": [
-        "bekwoh",
+        "cleaniquecoders",
         "laravel",
         "laravel-action"
     ],
-    "homepage": "https://github.com/bekwoh/laravel-action",
+    "homepage": "https://github.com/cleaniquecoders/laravel-action",
     "license": "MIT",
     "authors": [
         {
@@ -17,7 +17,7 @@
     ],
     "require": {
         "php": "^8.1",
-        "bekwoh/laravel-contract": "^1.0",
+        "cleaniquecoders/laravel-contract": "^1.0",
         "illuminate/contracts": "^9.0|^10.0",
         "spatie/laravel-package-tools": "^1.14.0"
     },
@@ -35,13 +35,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Bekwoh\\LaravelAction\\": "src",
-            "Bekwoh\\LaravelAction\\Database\\Factories\\": "database/factories"
+            "CleaniqueCoders\\LaravelAction\\": "src",
+            "CleaniqueCoders\\LaravelAction\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Bekwoh\\LaravelAction\\Tests\\": "tests"
+            "CleaniqueCoders\\LaravelAction\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -60,10 +60,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Bekwoh\\LaravelAction\\LaravelActionServiceProvider"
+                "CleaniqueCoders\\LaravelAction\\LaravelActionServiceProvider"
             ],
             "aliases": {
-                "LaravelAction": "Bekwoh\\LaravelAction\\Facades\\LaravelAction"
+                "LaravelAction": "CleaniqueCoders\\LaravelAction\\Facades\\LaravelAction"
             }
         }
     },
