@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Validator;
 
 abstract class AbstractAction implements Execute
 {
-    abstract public function rules(): array;
+    protected string $model;
+
+    protected array $inputs;
 
     protected array $constrainedBy = [];
 
@@ -21,12 +23,16 @@ abstract class AbstractAction implements Execute
 
     protected Model $record;
 
-    protected $model;
-
-    public function __construct(public array $inputs)
+    // Constructor and Initialization
+    public function __construct(array $inputs)
     {
+        $this->inputs = $inputs;
     }
 
+    // Abstract Method for Rules
+    abstract public function rules(): array;
+
+    // Setters and Getters
     public function setInputs(array $inputs): self
     {
         $this->inputs = $inputs;
@@ -34,21 +40,21 @@ abstract class AbstractAction implements Execute
         return $this;
     }
 
-    public function setEncryptFields(array $encryptFields): self
+    public function setConstrainedBy(array $constrainedBy): self
     {
-        $this->encryptFields = $encryptFields;
+        $this->constrainedBy = $constrainedBy;
 
         return $this;
     }
 
-    public function getEncryptFields(): array
+    public function getConstrainedBy(): array
     {
-        return $this->encryptFields;
+        return $this->constrainedBy;
     }
 
-    public function hasEncryptFields(): bool
+    public function hasConstrained(): bool
     {
-        return count($this->getEncryptFields()) > 0;
+        return count($this->constrainedBy) > 0;
     }
 
     public function setHashFields(array $hashFields): self
@@ -68,86 +74,82 @@ abstract class AbstractAction implements Execute
         return count($this->getHashFields()) > 0;
     }
 
-    public function setConstrainedBy(array $constrainedBy): self
+    public function setEncryptFields(array $encryptFields): self
     {
-        $this->constrainedBy = $constrainedBy;
+        $this->encryptFields = $encryptFields;
 
         return $this;
     }
 
-    public function getConstrainedBy(): array
+    public function getEncryptFields(): array
     {
-        return $this->constrainedBy;
+        return $this->encryptFields;
     }
 
-    public function hasConstrained(): bool
+    public function hasEncryptFields(): bool
     {
-        return count($this->getConstrainedBy()) > 0;
+        return count($this->getEncryptFields()) > 0;
     }
 
-    public function hashFields()
+    public function getRecord(): Model
     {
-        if ($this->hasHashFields()) {
-            // get from constrainedBy
-            if ($this->hasConstrained()) {
-                $constrainedBy = $this->getConstrainedBy();
-                foreach ($this->getHashFields() as $key => $value) {
-                    if (isset($constrainedBy[$value])) {
-                        $constrainedBy[$value] = Hash::make($constrainedBy[$value]);
-                    }
-                }
-                $this->setConstrainedBy($constrainedBy);
-            }
-            // get from inputs
-            $inputs = $this->inputs();
-            foreach ($this->getHashFields() as $key => $value) {
-                if (isset($inputs[$value])) {
-                    $inputs[$value] = Hash::make($inputs[$value]);
-                }
-            }
-            $this->setInputs($inputs);
-        }
-    }
-
-    public function encryptFields()
-    {
-        if ($this->hasEncryptFields()) {
-            // get from constrainedBy
-            if ($this->hasConstrained()) {
-                $constrainedBy = $this->getConstrainedBy();
-                foreach ($this->getEncryptFields() as $key => $value) {
-                    if (isset($constrainedBy[$value])) {
-                        $constrainedBy[$value] = encrypt($constrainedBy[$value]);
-                    }
-                }
-                $this->setConstrainedBy($constrainedBy);
-            }
-            // get from inputs
-            $inputs = $this->inputs();
-            foreach ($this->getEncryptFields() as $key => $value) {
-                if (isset($inputs[$value])) {
-                    $inputs[$value] = encrypt($inputs[$value]);
-                }
-            }
-            $this->setInputs($inputs);
-        }
-    }
-
-    public function removeConfirmationFields()
-    {
-        $inputs = $this->inputs();
-        $_inputs = [];
-        foreach ($inputs as $key => $value) {
-            if (! str($key)->contains('_confirmation')) {
-                $_inputs[$key] = $value;
-            }
-        }
-        $this->setInputs($_inputs);
+        return $this->record;
     }
 
     public function inputs(): array
     {
         return $this->inputs;
+    }
+
+    // Field Processing
+    public function hashFields(): void
+    {
+        if ($this->hasHashFields()) {
+            $this->applyTransformationOnFields($this->getHashFields(), fn ($value) => Hash::make($value));
+        }
+    }
+
+    public function encryptFields(): void
+    {
+        if ($this->hasEncryptFields()) {
+            $this->applyTransformationOnFields($this->getEncryptFields(), fn ($value) => encrypt($value));
+        }
+    }
+
+    public function removeConfirmationFields(): void
+    {
+        $this->inputs = array_filter($this->inputs, fn ($value, $key) => ! str($key)->contains('_confirmation'), ARRAY_FILTER_USE_BOTH);
+    }
+
+    // Validation
+    protected function validateInputs(): void
+    {
+        Validator::make(
+            array_merge($this->constrainedBy, $this->inputs),
+            $this->rules()
+        )->validate();
+    }
+
+    // Field Transformation Helper
+    protected function applyTransformationOnFields(array $fields, callable $transformation): void
+    {
+        if ($this->hasConstrained()) {
+            $constrainedBy = $this->constrainedBy;
+            foreach ($fields as $field) {
+                if (isset($constrainedBy[$field])) {
+                    $constrainedBy[$field] = $transformation($constrainedBy[$field]);
+                }
+            }
+            $this->constrainedBy = $constrainedBy;
+        }
+
+        $inputs = $this->inputs;
+        foreach ($fields as $field) {
+            if (isset($inputs[$field])) {
+                $inputs[$field] = $transformation($inputs[$field]);
+            }
+        }
+        $this->inputs = $inputs;
     }
 
     public function model(): string
@@ -163,35 +165,23 @@ abstract class AbstractAction implements Execute
         return $this->model;
     }
 
-    public function prepare()
+    // Preparation
+    public function prepare(): void
     {
+
     }
 
+    // Execution
     public function execute()
     {
         $this->prepare();
-
-        Validator::make(
-            array_merge(
-                $this->getConstrainedBy(),
-                $this->inputs()
-            ),
-            $this->rules()
-        )->validate();
-
+        $this->validateInputs();
         $this->hashFields();
         $this->encryptFields();
         $this->removeConfirmationFields();
 
-        return $this->record = DB::transaction(function () {
-            return $this->hasConstrained()
-                ? $this->model::updateOrCreate($this->getConstrainedBy(), $this->inputs())
-                : $this->model::create($this->inputs());
-        });
-    }
-
-    public function getRecord(): Model
-    {
-        return $this->record;
+        return $this->record = DB::transaction(fn () => $this->hasConstrained()
+            ? $this->model()::updateOrCreate($this->constrainedBy, $this->inputs)
+            : $this->model()::create($this->inputs));
     }
 }

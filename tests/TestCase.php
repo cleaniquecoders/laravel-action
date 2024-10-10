@@ -26,11 +26,20 @@ class TestCase extends Orchestra
 
     public function getEnvironmentSetUp($app)
     {
+        if (empty(config('app.key'))) {
+            config(['app.key' => 'base64:'.base64_encode(random_bytes(32))]);
+        }
+
         config()->set('database.default', 'testing');
 
-        /*
-        $migration = include __DIR__.'/../database/migrations/create_laravel-action_table.php.stub';
+        $app['config']->set('database.default', 'testing');
+        $app['config']->set('database.connections.testing', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+            'prefix' => '',
+        ]);
+
+        $migration = include __DIR__.'/database/migrations/create_users_table.php';
         $migration->up();
-        */
     }
 }
