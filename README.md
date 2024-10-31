@@ -1,9 +1,6 @@
 # Simple Actionable for Laravel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/cleaniquecoders/laravel-action.svg?style=flat-square)](https://packagist.org/packages/cleaniquecoders/laravel-action)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/cleaniquecoders/laravel-action/run-tests?label=tests)](https://github.com/cleaniquecoders/laravel-action/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/cleaniquecoders/laravel-action/Fix%20PHP%20code%20style%20issues?label=code%20style)](https://github.com/cleaniquecoders/laravel-action/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/cleaniquecoders/laravel-action.svg?style=flat-square)](https://packagist.org/packages/cleaniquecoders/laravel-action)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/cleaniquecoders/laravel-action.svg?style=flat-square)](https://packagist.org/packages/cleaniquecoders/laravel-action) [![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/cleaniquecoders/laravel-action/run-tests?label=tests)](https://github.com/cleaniquecoders/laravel-action/actions?query=workflow%3Arun-tests+branch%3Amain) [![GitHub Code Style Action Status](https://img.shields.io/github/workflow/status/cleaniquecoders/laravel-action/Fix%20PHP%20code%20style%20issues?label=code%20style)](https://github.com/cleaniquecoders/laravel-action/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain) [![Total Downloads](https://img.shields.io/packagist/dt/cleaniquecoders/laravel-action.svg?style=flat-square)](https://packagist.org/packages/cleaniquecoders/laravel-action)
 
 Simple Actionable for Laravel.
 
@@ -21,9 +18,15 @@ You can publish the config file with:
 php artisan vendor:publish --tag="laravel-action-config"
 ```
 
-Optionally, you can publish the views using
+Optionally, you can publish the views using:
+
+```bash
+php artisan vendor:publish --tag="laravel-action-views"
+```
 
 ## Usage
+
+You can create an action using the Artisan command:
 
 ```bash
 php artisan make:action User\\CreateOrUpdateUser --model=User
@@ -37,31 +40,92 @@ This will create an action in `app\Actions\User`:
 namespace App\Actions\User;
 
 use App\Models\User;
-use CleaniqueCoders\LaravelAction\AbstractAction as Action;
+use CleaniqueCoders\LaravelAction\ResourceAction;
 
-class CreateOrUpdateUser extends Action
+class CreateOrUpdateUser extends ResourceAction
 {
     public $model = User::class;
 
     public function rules(): array
     {
-        return [];
+        return [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users,email',
+            'password' => 'required|string|min:8',
+        ];
     }
 }
 ```
 
-Then you can use it like:
+### New Features and Example Usage
+
+#### 1. Flexible Property Setter
+
+You can now set various properties, like `hashFields`, `encryptFields`, and `constrainedBy`, dynamically using the `setProperty` method:
 
 ```php
-use App\Actions\User\CreateOrUpdateUser;
-
-$user = (new CreateOrUpdateUser(['name' => 'Nasrul Hazim', 'email' => 'nasrul@work.com']));
-
-// do more with \App\Models\User object
-// $user->assignRole(...)
+$action = new CreateOrUpdateUser(['name' => 'John Doe', 'email' => 'johndoe@example.com', 'password' => 'secretpassword']);
+$action->setProperty('hashFields', ['password']); // Hash the password
+$action->setProperty('encryptFields', ['ssn']); // Encrypt SSN
+$action->setProperty('constrainedBy', ['email' => 'johndoe@example.com']); // Use email as a unique constraint
 ```
 
+This flexible property setting reduces boilerplate and simplifies configuration of actions.
+
+#### 2. Field Transformation with Hashing and Encryption
+
+The `ResourceAction` class supports field-level transformations. For example, you can hash a `password` field and encrypt an `ssn` field:
+
+```php
+$inputs = [
+    'name' => 'Jane Doe',
+    'email' => 'janedoe@example.com',
+    'password' => 'securepassword',
+    'ssn' => '123-45-6789',
+];
+
+$action = new CreateOrUpdateUser($inputs);
+$action->setProperty('hashFields', ['password']);
+$action->setProperty('encryptFields', ['ssn']);
+$record = $action->execute();
+```
+
+After execution:
+- The `password` field will be hashed for security.
+- The `ssn` field will be encrypted, ensuring secure storage.
+
+#### 3. Constraint-Based `updateOrCreate`
+
+You can specify constraints to perform `updateOrCreate` actions based on unique fields or identifiers. Here’s an example of updating an existing user by `id`:
+
+```php
+// Assume there's an existing user with this email
+$existingUser = User::create([
+    'name' => 'Old Name',
+    'email' => 'uniqueemail@example.com',
+    'password' => Hash::make('oldpassword'),
+]);
+
+// Define the inputs to update the existing user
+$inputs = [
+    'name' => 'John Doe Updated',
+    'email' => 'uniqueemail@example.com', // Same email
+    'password' => 'newpassword',
+];
+
+$action = new CreateOrUpdateUser($inputs);
+$action->setProperty('constrainedBy', ['id' => $existingUser->id]); // Update by user ID
+
+$record = $action->execute();
+
+// The existing user record with the specified ID will be updated.
+```
+
+This allows precise control over `updateOrCreate` behavior based on custom constraints.
+
 ## Testing
+
+Run the tests with:
 
 ```bash
 composer test
@@ -69,7 +133,7 @@ composer test
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+Please see [CHANGELOG](CHANGELOG.md) for more information on recent changes.
 
 ## Contributing
 
