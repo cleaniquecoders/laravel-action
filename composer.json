@@ -18,6 +18,7 @@
 	"require": {
 		"php": "^8.1 | ^8.2 | ^8.3",
 		"cleaniquecoders/laravel-contract": "^1.0",
+		"cleaniquecoders/traitify": "^1.0",
 		"illuminate/contracts": "^9.0 | ^10.0 | ^11.0",
 		"spatie/laravel-package-tools": "^1.14.0"
 	},

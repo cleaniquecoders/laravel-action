@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use CleaniqueCoders\LaravelAction\Concerns\InteractsWithApi;
+use CleaniqueCoders\Traitify\Concerns\InteractsWithApi;
 use CleaniqueCoders\LaravelContract\Contracts\Api;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
