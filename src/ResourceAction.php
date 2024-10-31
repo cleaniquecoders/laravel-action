@@ -16,26 +16,36 @@ abstract class ResourceAction
 
     /**
      * The model class the action operates on.
+     *
+     * @var class-string<Model>
      */
     protected string $model;
 
     /**
      * Input data for the action.
+     *
+     * @var array<string, mixed>
      */
     protected array $inputs = [];
 
     /**
      * Fields to use for constraint-based operations.
+     *
+     * @var array<string, mixed>
      */
     protected array $constrainedBy = [];
 
     /**
      * Fields to hash before saving.
+     *
+     * @var array<int, string>
      */
     protected array $hashFields = [];
 
     /**
      * Fields to encrypt before saving.
+     *
+     * @var array<int, string>
      */
     protected array $encryptFields = [];
 
@@ -46,6 +56,8 @@ abstract class ResourceAction
 
     /**
      * Constructor to initialize input data.
+     *
+     * @param  array<string, mixed>  $inputs
      */
     public function __construct(array $inputs = [])
     {
@@ -55,6 +67,7 @@ abstract class ResourceAction
     /**
      * Generic setter for properties.
      *
+     * @param  array<int|string, mixed>  $value
      * @return $this
      *
      * @throws ActionException
@@ -80,6 +93,8 @@ abstract class ResourceAction
 
     /**
      * Retrieve the inputs.
+     *
+     * @return array<string, mixed>
      */
     public function inputs(): array
     {
@@ -95,11 +110,14 @@ abstract class ResourceAction
         $this->transformFields();
         $this->removeConfirmationFields();
 
-        return $this->record = DB::transaction(function () {
+        /** @var Model $record */
+        $record = DB::transaction(function (): Model {
             return ! empty($this->constrainedBy)
                 ? $this->model()::updateOrCreate($this->constrainedBy, $this->inputs)
                 : $this->model()::create($this->inputs);
         });
+
+        return $this->record = $record;
     }
 
     /**
@@ -126,13 +144,15 @@ abstract class ResourceAction
     /**
      * Remove confirmation fields from inputs.
      */
-    public function removeConfirmationFields(): void
+    protected function removeConfirmationFields(): void
     {
         $this->inputs = array_filter($this->inputs, fn ($value, $key) => ! Str::contains($key, '_confirmation'), ARRAY_FILTER_USE_BOTH);
     }
 
     /**
      * Apply transformation to specified fields in inputs and constraints.
+     *
+     * @param  array<int, string>  $fields
      */
     protected function applyTransformationOnFields(array $fields, callable $transformation): void
     {
@@ -145,6 +165,8 @@ abstract class ResourceAction
 
     /**
      * Retrieve the model class for the action.
+     *
+     * @return class-string<Model>
      *
      * @throws ActionException
      */

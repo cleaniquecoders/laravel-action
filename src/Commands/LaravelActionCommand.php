@@ -101,7 +101,7 @@ class LaravelActionCommand extends GeneratorCommand
             ->replaceClass($stub, $name);
     }
 
-    protected function replaceModel(&$stub)
+    protected function replaceModel(string &$stub): self
     {
         $this->throwExceptionIfMissingModel();
 
@@ -118,7 +118,7 @@ class LaravelActionCommand extends GeneratorCommand
         return $this;
     }
 
-    protected function getModelNamespace()
+    protected function getModelNamespace(): string
     {
         $namespace = $this->option('namespace')
             ? $this->option('namespace')
@@ -127,7 +127,7 @@ class LaravelActionCommand extends GeneratorCommand
         return $namespace.$this->getModel();
     }
 
-    public function throwExceptionIfMissingModel()
+    public function throwExceptionIfMissingModel(): void
     {
         if (! $this->option('resource')) {
             return;
@@ -138,19 +138,26 @@ class LaravelActionCommand extends GeneratorCommand
         }
     }
 
-    public function getModel()
+    /**
+     * Retrieves the model option or throws an exception if it's missing.
+     */
+    public function getModel(): string
     {
-        $this->throwExceptionIfMissingModel();
+        $model = $this->option('model');
 
-        return $this->option('model');
+        if (is_string($model) && $model !== '') {
+            return $model;
+        }
+
+        throw new RuntimeException('The model option must be provided and cannot be empty.');
     }
 
     /**
      * Get the console command arguments.
      *
-     * @return array
+     * @return array<int, array<int|string, mixed>>
      */
-    protected function getArguments()
+    protected function getArguments(): array
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the class'],
@@ -160,9 +167,9 @@ class LaravelActionCommand extends GeneratorCommand
     /**
      * Get the console command options.
      *
-     * @return array
+     * @return array<int, array<int|string, mixed>>
      */
-    protected function getOptions()
+    protected function getOptions(): array
     {
         return [
             ['namespace', '', InputOption::VALUE_REQUIRED, 'The model namespace'],
