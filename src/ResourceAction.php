@@ -144,7 +144,7 @@ abstract class ResourceAction
     /**
      * Remove confirmation fields from inputs.
      */
-    protected function removeConfirmationFields(): void
+    public function removeConfirmationFields(): void
     {
         $this->inputs = array_filter($this->inputs, fn ($value, $key) => ! Str::contains($key, '_confirmation'), ARRAY_FILTER_USE_BOTH);
     }
