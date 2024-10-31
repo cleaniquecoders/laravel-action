@@ -12,6 +12,10 @@ You can install the package via composer:
 composer require cleaniquecoders/laravel-action
 ```
 
+## Todo
+
+- [ ] Be able to publish stubs and using custom stubs if exists.
+
 ## Usage
 
 You can create an action using the Artisan command:
