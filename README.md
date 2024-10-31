@@ -12,18 +12,6 @@ You can install the package via composer:
 composer require cleaniquecoders/laravel-action
 ```
 
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="laravel-action-config"
-```
-
-Optionally, you can publish the views using:
-
-```bash
-php artisan vendor:publish --tag="laravel-action-views"
-```
-
 ## Usage
 
 You can create an action using the Artisan command:
@@ -44,7 +32,7 @@ use CleaniqueCoders\LaravelAction\ResourceAction;
 
 class CreateOrUpdateUser extends ResourceAction
 {
-    public $model = User::class;
+    public string $model = User::class;
 
     public function rules(): array
     {
