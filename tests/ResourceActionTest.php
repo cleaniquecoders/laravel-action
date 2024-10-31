@@ -27,7 +27,7 @@ it('creates a user with valid data', function () {
     expect($record)->toBeInstanceOf(User::class)
         ->and($record->name)->toBe('John Doe')
         ->and($record->email)->toBe('johndoe@example.com')
-        ->and(Hash::check('secretpassword', $record->password))->toBeTrue(); // Check if the password is hashed
+        ->and(Hash::check('secretpassword', $record->password))->toBeTrue();
 });
 
 // it validates required fields
@@ -54,9 +54,8 @@ it('throws exception if model is not set', function () {
     ];
 
     // Stub a class without a model definition
-    $stubAction = new class($inputs) extends CreateUserAction
-    {
-        protected string $model = ''; // Not setting the model on purpose
+    $stubAction = new class($inputs) extends CreateUserAction {
+        protected string $model = ''; // Intentionally leave model empty
     };
 
     // Act & Assert
@@ -73,13 +72,13 @@ it('applies hashing to password field', function () {
     ];
 
     $action = new CreateUserAction($inputs);
-    $action->setHashFields(['password']);
+    $action->setProperty('hashFields', ['password']); // Use setProperty to define hash fields
 
     // Act
     $record = $action->execute();
 
     // Assert
-    expect(Hash::check('secretpassword', $record->password))->toBeTrue(); // Verify password hash
+    expect(Hash::check('secretpassword', $record->password))->toBeTrue();
 });
 
 // it removes confirmation fields from inputs
@@ -113,7 +112,7 @@ it('uses transactions during execution', function () {
 
     $action = new CreateUserAction($inputs);
 
-    // // Mock the database connection and query builder
+    // Mock the database connection and query builder
     $mockConnection = Mockery::mock();
     $mockQueryBuilder = Mockery::mock();
 
@@ -121,8 +120,8 @@ it('uses transactions during execution', function () {
     $mockConnection->shouldReceive('table')->andReturn($mockQueryBuilder);
     $mockQueryBuilder->shouldReceive('useWritePdo')->andReturn($mockQueryBuilder);
     $mockQueryBuilder->shouldReceive('where')->andReturn($mockQueryBuilder);
-    $mockQueryBuilder->shouldReceive('count')->andReturn(0); // Return a count of 0 for the test
-    $mockQueryBuilder->shouldReceive('updateOrCreate')->andReturn(Mockery::mock(User::class)); // Mock the final result
+    $mockQueryBuilder->shouldReceive('count')->andReturn(0);
+    $mockQueryBuilder->shouldReceive('updateOrCreate')->andReturn(Mockery::mock(User::class));
 
     // Mock the transaction flow
     DB::shouldReceive('connection')->andReturn($mockConnection);
@@ -139,6 +138,7 @@ it('uses transactions during execution', function () {
 
 // it applies encryption to specified fields
 it('applies encryption to specified fields', function () {
+    // Arrange
     $inputs = [
         'name' => 'John Doe',
         'email' => 'johndoe@example.com',
@@ -147,9 +147,7 @@ it('applies encryption to specified fields', function () {
     ];
 
     $action = new CreateUserAction($inputs);
-
-    // Assuming we want to encrypt the 'ssn' field
-    $action->setEncryptFields(['ssn']);
+    $action->setProperty('encryptFields', ['ssn']); // Use setProperty to define encryption fields
 
     // Act
     $record = $action->execute();
@@ -159,6 +157,5 @@ it('applies encryption to specified fields', function () {
 
     // Ensure 'ssn' field was encrypted
     $decryptedSSN = decrypt($record->ssn);
-
     expect($decryptedSSN)->toBe('123-45-6789');
 });

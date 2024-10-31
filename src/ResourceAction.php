@@ -7,6 +7,7 @@ use CleaniqueCoders\LaravelContract\Contracts\Execute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
 abstract class ResourceAction implements Execute
@@ -71,111 +72,21 @@ abstract class ResourceAction implements Execute
     abstract public function rules(): array;
 
     /**
-     * Set input data.
+     * Generic setter for properties.
      *
-     * @param array $inputs
+     * @param string $property
+     * @param array $value
      * @return $this
+     * @throws ActionException
      */
-    public function setInputs(array $inputs): self
+    public function setProperty(string $property, array $value): self
     {
-        $this->inputs = $inputs;
+        if (!property_exists($this, $property)) {
+            throw new ActionException("Property {$property} does not exist.");
+        }
+
+        $this->{$property} = $value;
         return $this;
-    }
-
-    /**
-     * Set fields for constraint-based operations.
-     *
-     * @param array $constrainedBy
-     * @return $this
-     */
-    public function setConstrainedBy(array $constrainedBy): self
-    {
-        $this->constrainedBy = $constrainedBy;
-        return $this;
-    }
-
-    /**
-     * Get constrained fields.
-     *
-     * @return array
-     */
-    public function getConstrainedBy(): array
-    {
-        return $this->constrainedBy;
-    }
-
-    /**
-     * Check if constraints are applied.
-     *
-     * @return bool
-     */
-    public function hasConstrained(): bool
-    {
-        return count($this->constrainedBy) > 0;
-    }
-
-    /**
-     * Set fields to hash before saving.
-     *
-     * @param array $hashFields
-     * @return $this
-     */
-    public function setHashFields(array $hashFields): self
-    {
-        $this->hashFields = $hashFields;
-        return $this;
-    }
-
-    /**
-     * Get fields to hash.
-     *
-     * @return array
-     */
-    public function getHashFields(): array
-    {
-        return $this->hashFields;
-    }
-
-    /**
-     * Check if any fields are set to be hashed.
-     *
-     * @return bool
-     */
-    public function hasHashFields(): bool
-    {
-        return count($this->getHashFields()) > 0;
-    }
-
-    /**
-     * Set fields to encrypt before saving.
-     *
-     * @param array $encryptFields
-     * @return $this
-     */
-    public function setEncryptFields(array $encryptFields): self
-    {
-        $this->encryptFields = $encryptFields;
-        return $this;
-    }
-
-    /**
-     * Get fields to encrypt.
-     *
-     * @return array
-     */
-    public function getEncryptFields(): array
-    {
-        return $this->encryptFields;
-    }
-
-    /**
-     * Check if any fields are set to be encrypted.
-     *
-     * @return bool
-     */
-    public function hasEncryptFields(): bool
-    {
-        return count($this->getEncryptFields()) > 0;
     }
 
     /**
@@ -203,23 +114,10 @@ abstract class ResourceAction implements Execute
      *
      * @return void
      */
-    public function hashFields(): void
+    protected function transformFields(): void
     {
-        if ($this->hasHashFields()) {
-            $this->applyTransformationOnFields($this->getHashFields(), fn ($value) => Hash::make($value));
-        }
-    }
-
-    /**
-     * Encrypt specified fields in the inputs or constraints.
-     *
-     * @return void
-     */
-    public function encryptFields(): void
-    {
-        if ($this->hasEncryptFields()) {
-            $this->applyTransformationOnFields($this->getEncryptFields(), fn ($value) => encrypt($value));
-        }
+        $this->applyTransformationOnFields($this->hashFields, fn($value) => Hash::make($value));
+        $this->applyTransformationOnFields($this->encryptFields, fn($value) => encrypt($value));
     }
 
     /**
@@ -229,21 +127,7 @@ abstract class ResourceAction implements Execute
      */
     public function removeConfirmationFields(): void
     {
-        $this->inputs = array_filter($this->inputs, fn ($value, $key) => ! str($key)->contains('_confirmation'), ARRAY_FILTER_USE_BOTH);
-    }
-
-    /**
-     * Validate inputs against defined rules.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     * @return void
-     */
-    protected function validateInputs(): void
-    {
-        Validator::make(
-            array_merge($this->constrainedBy, $this->inputs),
-            $this->rules()
-        )->validate();
+        $this->inputs = array_filter($this->inputs, fn($value, $key) => !Str::contains($key, '_confirmation'), ARRAY_FILTER_USE_BOTH);
     }
 
     /**
@@ -255,23 +139,14 @@ abstract class ResourceAction implements Execute
      */
     protected function applyTransformationOnFields(array $fields, callable $transformation): void
     {
-        if ($this->hasConstrained()) {
-            $constrainedBy = $this->constrainedBy;
-            foreach ($fields as $field) {
-                if (isset($constrainedBy[$field])) {
-                    $constrainedBy[$field] = $transformation($constrainedBy[$field]);
-                }
+        $transformFields = function (&$value, $key) use ($fields, $transformation) {
+            if (in_array($key, $fields, true)) {
+                $value = $transformation($value);
             }
-            $this->constrainedBy = $constrainedBy;
-        }
+        };
 
-        $inputs = $this->inputs;
-        foreach ($fields as $field) {
-            if (isset($inputs[$field])) {
-                $inputs[$field] = $transformation($inputs[$field]);
-            }
-        }
-        $this->inputs = $inputs;
+        array_walk_recursive($this->inputs, $transformFields);
+        array_walk_recursive($this->constrainedBy, $transformFields);
     }
 
     /**
@@ -304,21 +179,37 @@ abstract class ResourceAction implements Execute
     }
 
     /**
+     * Validates the inputs against the defined rules.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     * @return void
+     */
+    protected function validateInputs(): void
+    {
+        Validator::make(
+            array_merge($this->constrainedBy, $this->inputs),
+            $this->rules()
+        )->validate();
+    }
+
+
+    /**
      * Execute the action with preparation, validation, and data processing.
      *
      * @return Model
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function execute()
+    public function execute(): Model
     {
         $this->prepare();
         $this->validateInputs();
-        $this->hashFields();
-        $this->encryptFields();
+        $this->transformFields();
         $this->removeConfirmationFields();
 
-        return $this->record = DB::transaction(fn () => $this->hasConstrained()
-            ? $this->model()::updateOrCreate($this->constrainedBy, $this->inputs)
-            : $this->model()::create($this->inputs));
+        return $this->record = DB::transaction(function () {
+            return !empty($this->constrainedBy)
+                ? $this->model()::updateOrCreate($this->constrainedBy, $this->inputs)
+                : $this->model()::create($this->inputs);
+        });
     }
 }
