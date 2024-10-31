@@ -21,7 +21,7 @@ it('creates a user with valid data', function () {
     $action = new CreateUserAction($inputs);
 
     // Act
-    $record = $action->execute();
+    $record = $action->handle();
 
     // Assert
     expect($record)->toBeInstanceOf(User::class)
@@ -41,7 +41,7 @@ it('validates required fields', function () {
     $action = new CreateUserAction($inputs);
 
     // Act & Assert
-    expect(fn () => $action->execute())->toThrow(\Illuminate\Validation\ValidationException::class);
+    expect(fn () => $action->handle())->toThrow(\Illuminate\Validation\ValidationException::class);
 });
 
 // it throws exception if model is not set
@@ -60,7 +60,7 @@ it('throws exception if model is not set', function () {
     };
 
     // Act & Assert
-    expect(fn () => $stubAction->execute())->toThrow(ActionException::class);
+    expect(fn () => $stubAction->handle())->toThrow(ActionException::class);
 });
 
 // it applies hashing to password field
@@ -76,7 +76,7 @@ it('applies hashing to password field', function () {
     $action->setProperty('hashFields', ['password']); // Use setProperty to define hash fields
 
     // Act
-    $record = $action->execute();
+    $record = $action->handle();
 
     // Assert
     expect(Hash::check('secretpassword', $record->password))->toBeTrue();
@@ -97,7 +97,7 @@ it('applies both hashing and encryption to specified fields', function () {
     $action->setProperty('encryptFields', ['ssn']);
 
     // Act
-    $record = $action->execute();
+    $record = $action->handle();
 
     // Assert
     expect(Hash::check('secretpassword', $record->password))->toBeTrue();
@@ -120,7 +120,7 @@ it('handles multiple fields for hashing and encryption', function () {
     $action->setProperty('encryptFields', ['ssn', 'email']);
 
     // Act
-    $record = $action->execute();
+    $record = $action->handle();
 
     // Assert
     // Only use Hash::check on fields known to be hashed
@@ -153,7 +153,7 @@ it('applies constraints for update or create', function () {
     $action->setProperty('constrainedBy', ['id' => $existingUser->id]); // Use ID as a unique constraint for update
 
     // Act
-    $record = $action->execute();
+    $record = $action->handle();
 
     // Assert
     expect($record->name)->toBe('John Doe Updated')
@@ -211,7 +211,7 @@ it('uses transactions during execution', function () {
     $mockQueryBuilder->shouldReceive('updateOrCreate')->andReturn(Mockery::mock(User::class));
 
     // Act
-    $record = $action->execute();
+    $record = $action->handle();
 
     // Assert
     expect($record)->toBeInstanceOf(User::class);
@@ -230,9 +230,9 @@ it('does not apply transformation if optional field is missing', function () {
     $action->setProperty('hashFields', ['security_answer']); // 'security_answer' is not present in inputs
 
     // Act
-    $record = $action->execute();
+    $record = $action->handle();
 
     // Assert
-    expect($record)->toBeInstanceOf(User::class); // Check the action executed successfully
+    expect($record)->toBeInstanceOf(User::class); // Check the action handled successfully
     expect($action->inputs())->not->toHaveKey('security_answer'); // Ensure no transformation occurred on missing field
 });

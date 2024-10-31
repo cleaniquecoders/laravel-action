@@ -3,15 +3,17 @@
 namespace CleaniqueCoders\LaravelAction;
 
 use CleaniqueCoders\LaravelAction\Exceptions\ActionException;
-use CleaniqueCoders\LaravelContract\Contracts\Execute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Lorisleiva\Actions\Concerns\AsAction;
 
-abstract class ResourceAction implements Execute
+abstract class ResourceAction
 {
+    use AsAction;
+
     /**
      * The model class the action operates on.
      */
@@ -20,7 +22,7 @@ abstract class ResourceAction implements Execute
     /**
      * Input data for the action.
      */
-    protected array $inputs;
+    protected array $inputs = [];
 
     /**
      * Fields to use for constraint-based operations.
@@ -40,7 +42,7 @@ abstract class ResourceAction implements Execute
     /**
      * The Eloquent model record.
      */
-    protected Model $record;
+    protected ?Model $record = null;
 
     /**
      * Constructor to initialize input data.
@@ -49,11 +51,6 @@ abstract class ResourceAction implements Execute
     {
         $this->inputs = $inputs;
     }
-
-    /**
-     * Abstract method to define validation rules for the action.
-     */
-    abstract public function rules(): array;
 
     /**
      * Generic setter for properties.
@@ -76,7 +73,7 @@ abstract class ResourceAction implements Execute
     /**
      * Retrieve the current record.
      */
-    public function getRecord(): Model
+    public function getRecord(): ?Model
     {
         return $this->record;
     }
@@ -90,7 +87,35 @@ abstract class ResourceAction implements Execute
     }
 
     /**
-     * Hash specified fields in the inputs or constraints.
+     * Main action execution logic.
+     */
+    public function handle(): Model
+    {
+        $this->validateInputs();
+        $this->transformFields();
+        $this->removeConfirmationFields();
+
+        return $this->record = DB::transaction(function () {
+            return ! empty($this->constrainedBy)
+                ? $this->model()::updateOrCreate($this->constrainedBy, $this->inputs)
+                : $this->model()::create($this->inputs);
+        });
+    }
+
+    /**
+     * Conditionally validate inputs if rules are defined.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function validateInputs(): void
+    {
+        if (method_exists($this, 'rules') && ! empty($this->rules())) {
+            Validator::make($this->inputs, $this->rules())->validate();
+        }
+    }
+
+    /**
+     * Transform specified fields in the inputs.
      */
     protected function transformFields(): void
     {
@@ -111,14 +136,11 @@ abstract class ResourceAction implements Execute
      */
     protected function applyTransformationOnFields(array $fields, callable $transformation): void
     {
-        $transformFields = function (&$value, $key) use ($fields, $transformation) {
-            if (in_array($key, $fields, true)) {
-                $value = $transformation($value);
+        foreach ($fields as $field) {
+            if (isset($this->inputs[$field])) {
+                $this->inputs[$field] = $transformation($this->inputs[$field]);
             }
-        };
-
-        array_walk_recursive($this->inputs, $transformFields);
-        array_walk_recursive($this->constrainedBy, $transformFields);
+        }
     }
 
     /**
@@ -137,45 +159,5 @@ abstract class ResourceAction implements Execute
         }
 
         return $this->model;
-    }
-
-    /**
-     * Preparation method for the action.
-     */
-    public function prepare(): void
-    {
-        // Placeholder for child classes to implement custom preparation.
-    }
-
-    /**
-     * Validates the inputs against the defined rules.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    protected function validateInputs(): void
-    {
-        Validator::make(
-            array_merge($this->constrainedBy, $this->inputs),
-            $this->rules()
-        )->validate();
-    }
-
-    /**
-     * Execute the action with preparation, validation, and data processing.
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     */
-    public function execute(): Model
-    {
-        $this->prepare();
-        $this->validateInputs();
-        $this->transformFields();
-        $this->removeConfirmationFields();
-
-        return $this->record = DB::transaction(function () {
-            return ! empty($this->constrainedBy)
-                ? $this->model()::updateOrCreate($this->constrainedBy, $this->inputs)
-                : $this->model()::create($this->inputs);
-        });
     }
 }

@@ -2,6 +2,4 @@
 
 namespace CleaniqueCoders\LaravelAction;
 
-class LaravelAction
-{
-}
+class LaravelAction {}
