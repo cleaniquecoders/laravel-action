@@ -45,8 +45,8 @@ class LaravelActionCommand extends GeneratorCommand
             return $this->resolveStubPath('/stubs/action-api.stub');
         }
 
-        if ($this->option('create-update')) {
-            return $this->resolveStubPath('/stubs/action-create-or-update.stub');
+        if ($this->option('resource')) {
+            return $this->resolveStubPath('/stubs/action-resource.stub');
         }
 
         return $this->resolveStubPath('/stubs/action.stub');
@@ -129,7 +129,7 @@ class LaravelActionCommand extends GeneratorCommand
 
     public function throwExceptionIfMissingModel()
     {
-        if (! $this->option('create-update')) {
+        if (! $this->option('resource')) {
             return;
         }
 
@@ -169,7 +169,7 @@ class LaravelActionCommand extends GeneratorCommand
             ['model', '', InputOption::VALUE_REQUIRED, 'The name of the model'],
             ['menu', '', InputOption::VALUE_NONE, 'Create a menu action'],
             ['api', '', InputOption::VALUE_NONE, 'Create an API action'],
-            ['create-update', 'cu', InputOption::VALUE_NONE, 'Create a Create or Update action'],
+            ['resource', 'r', InputOption::VALUE_NONE, 'Create a resource action'],
         ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace {{ namespace }};
 
-use CleaniqueCoders\LaravelAction\AbstractAction as Action;
+use CleaniqueCoders\LaravelAction\ResourceAction as Action;
 use {{ model_namespace }};
 
 class {{ class }} extends Action

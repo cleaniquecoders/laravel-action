@@ -2,10 +2,10 @@
 
 namespace CleaniqueCoders\LaravelAction\Tests\Stubs\Actions;
 
-use CleaniqueCoders\LaravelAction\AbstractAction;
+use CleaniqueCoders\LaravelAction\ResourceAction;
 use CleaniqueCoders\LaravelAction\Tests\Stubs\Models\User;
 
-class CreateUserAction extends AbstractAction
+class CreateUserAction extends ResourceAction
 {
     protected string $model = User::class; // Assuming you're working with a `User` model.
 
