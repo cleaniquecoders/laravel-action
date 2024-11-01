@@ -17,6 +17,10 @@ jobs:
         with:
           fetch-depth: 0  # Fetch full history to access all tags for complete changelog generation
 
+      - name: Create New Branch
+        run: |
+          git checkout -b update-changelog-${{ github.run_id }}  # Create new branch from main
+
       - name: Install git-chglog
         run: |
           curl -o git-chglog -L https://github.com/git-chglog/git-chglog/releases/download/0.9.1/git-chglog_linux_amd64
@@ -26,11 +30,11 @@ jobs:
         run: |
           rm -f CHANGELOG.md  # Remove the existing changelog to allow complete regeneration
 
-      - name: Generate New Full CHANGELOG.md
+      - name: Update CHANGELOG.md
         run: |
-          ./git-chglog -o CHANGELOG.md  # Generate the entire changelog with all release history
+          ./git-chglog -o CHANGELOG.md
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Required by git-chglog to access repository info
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Clean Up git-chglog
         run: |
@@ -39,16 +43,16 @@ jobs:
       - name: Commit and Push Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Regenerate full CHANGELOG from all tags"
+          commit_message: "Update CHANGELOG"
           file_pattern: CHANGELOG.md
-          branch: regenerate-changelog-${{ github.run_id }}  # Unique branch for each run
+          branch: update-changelog-${{ github.run_id }}  # Commit to the new branch
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          commit-message: "Regenerate full CHANGELOG"
-          title: "Regenerate Full Changelog"
-          body: "This PR regenerates the entire CHANGELOG to include all releases."
-          branch: regenerate-changelog-${{ github.run_id }}  # Match the branch from the previous step
+          commit-message: "Update CHANGELOG"
+          title: "Update Changelog"
+          body: "This PR updates the entire CHANGELOG to include all releases."
+          branch: update-changelog-${{ github.run_id }}  # Match the branch from the previous step
           base: main  # Target branch for PR
           delete-branch: true  # Automatically delete branch after merge
