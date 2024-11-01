@@ -3,10 +3,11 @@ name: "Update Changelog"
 on:
   release:
     types: [published]  # Trigger on release publication
-  workflow_dispatch:      # Allows manual trigger of this workflow
+  workflow_dispatch:    # Allows manual trigger
 
 permissions:
-  contents: write
+  contents: write      # Minimum required permission for file changes and PR creation
+  pull-requests: write # Required for creating PRs
 
 jobs:
   update-changelog:
@@ -17,54 +18,49 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch full history to access all tags
-          ref: main  # Ensure we're starting from main branch
+          fetch-depth: 0  # Fetch full history for changelog generation
+          ref: main       # Start from main branch
 
-      - name: Install git-chglog
+      - name: Setup git-chglog
         run: |
-          curl -o git-chglog -L https://github.com/git-chglog/git-chglog/releases/download/0.9.1/git-chglog_linux_amd64
+          CHGLOG_VERSION="0.9.1"
+          curl -o git-chglog -L "https://github.com/git-chglog/git-chglog/releases/download/${CHGLOG_VERSION}/git-chglog_linux_amd64"
           chmod +x git-chglog
 
-      - name: Remove Existing CHANGELOG.md
+      - name: Generate CHANGELOG.md
+        id: generate
         run: |
-          rm -f CHANGELOG.md  # Remove the existing changelog to allow complete regeneration
-
-      - name: Generate New CHANGELOG.md
-        run: |
+          rm -f CHANGELOG.md  # Remove existing changelog
           ./git-chglog -o CHANGELOG.md
+
+          # Check for changes and set output
+          if git diff --quiet CHANGELOG.md; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Clean up git-chglog
-        run: |
-          rm git-chglog
-
-      - name: Check for Changes
-        id: check_changes
-        run: |
-          if git diff --quiet CHANGELOG.md; then
-            echo "No changes in CHANGELOG.md"
-            echo "::set-output name=changes::false"
-          else
-            echo "Changes detected in CHANGELOG.md"
-            echo "::set-output name=changes::true"
-          fi
-
-      - name: Commit and Push Changes
-        if: steps.check_changes.outputs.changes == 'true'  # Only run if there are changes
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Update CHANGELOG"
-          file_pattern: CHANGELOG.md
-          branch: update-changelog-${{ github.run_id }}
+      - name: Cleanup
+        run: rm git-chglog
+        if: always()  # Ensure cleanup happens even if previous steps fail
 
       - name: Create Pull Request
-        if: steps.check_changes.outputs.changes == 'true'  # Only run if there are changes
+        if: steps.generate.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v4
         with:
-          commit-message: "Update CHANGELOG"
-          title: "Update Changelog"
-          body: "This PR updates the entire CHANGELOG to include all releases."
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update CHANGELOG.md"
+          title: "📝 Update Changelog"
+          body: |
+            This PR updates the CHANGELOG.md to include all releases.
+
+            - Generated using git-chglog
+            - Triggered by: ${{ github.event_name }}
           branch: update-changelog-${{ github.run_id }}
           base: main
-          delete-branch: true  # Automatically delete branch after merge
+          delete-branch: true
+          labels: |
+            documentation
+            automated-pr
