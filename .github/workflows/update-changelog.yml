@@ -6,8 +6,8 @@ on:
   workflow_dispatch:    # Allows manual trigger
 
 permissions:
-  contents: write      # Minimum required permission for file changes and PR creation
-  pull-requests: write # Required for creating PRs
+  contents: write      # Required for file changes and auto-merge
+  pull-requests: write # Required for creating PRs and auto-merge
 
 jobs:
   update-changelog:
@@ -49,6 +49,7 @@ jobs:
       - name: Create Pull Request
         if: steps.generate.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v4
+        id: create-pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: update CHANGELOG.md"
@@ -58,9 +59,17 @@ jobs:
 
             - Generated using git-chglog
             - Triggered by: ${{ github.event_name }}
+            - Auto-merge enabled
           branch: update-changelog-${{ github.run_id }}
           base: main
-          delete-branch: true
+          delete-branch: true  # This will delete the branch after merge
           labels: |
             documentation
             automated-pr
+
+      - name: Enable Auto-merge
+        if: steps.generate.outputs.changes == 'true'
+        run: |
+          gh pr merge --auto --merge "${{ steps.create-pr.outputs.pull-request-number }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
