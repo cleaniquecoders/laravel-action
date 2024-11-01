@@ -36,8 +36,9 @@ jobs:
           file_pattern: CHANGELOG.md
 
       - name: Push changes and create PR
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v7
         with:
           branch: update-changelog
           title: "Automated Update of CHANGELOG"
           body: "This PR was created by GitHub Actions to update the CHANGELOG."
+          delete-branch: false
