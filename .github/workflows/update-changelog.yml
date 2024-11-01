@@ -13,20 +13,31 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
-          ref: main
+          ref: main  # Ensure you're checking out the main branch
+
+      - name: Create update-changelog Branch
+        run: |
+          git checkout -b update-changelog
 
       - name: Update Changelog
         uses: stefanzweifel/changelog-updater-action@v1
         with:
-          latest-version: ${{ github.event.release.name }}
+          latest-version: ${{ github.event.release.tag_name }}  # Use tag_name for correct version
           release-notes: ${{ github.event.release.body }}
 
       - name: Commit updated CHANGELOG
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          branch: main
-          commit_message: Update CHANGELOG
+          branch: update-changelog  # Ensure you're on the update-changelog branch
+          commit_message: "Update CHANGELOG"
           file_pattern: CHANGELOG.md
+
+      - name: Push changes and create PR
+        uses: peter-evans/create-pull-request@v4
+        with:
+          branch: update-changelog
+          title: "Automated Update of CHANGELOG"
+          body: "This PR was created by GitHub Actions to update the CHANGELOG."
