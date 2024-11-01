@@ -20,8 +20,7 @@ jobs:
 
       - name: Create Unique Branch for Changelog Update
         run: |
-          TIMESTAMP=$(date +%s)
-          git checkout -b update-changelog-$TIMESTAMP
+          git checkout -b update-changelog-${{ github.run_id }}
 
       - name: Update Changelog
         uses: stefanzweifel/changelog-updater-action@v1
