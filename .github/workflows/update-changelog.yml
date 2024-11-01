@@ -17,7 +17,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}  # Checks out the current branch
+          fetch-depth: 0  # Fetch full history to access all tags for complete changelog generation
+          ref: ${{ github.head_ref }}
 
       - name: Install git-chglog
         run: |
