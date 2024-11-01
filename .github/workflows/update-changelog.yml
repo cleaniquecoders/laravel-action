@@ -39,23 +39,32 @@ jobs:
         run: |
           rm git-chglog
 
-      - name: Create and Switch to New Branch
+      - name: Check for Changes
+        id: check_changes
         run: |
-          git checkout -b update-changelog-${{ github.run_id }}
+          if git diff --quiet CHANGELOG.md; then
+            echo "No changes in CHANGELOG.md"
+            echo "::set-output name=changes::false"
+          else
+            echo "Changes detected in CHANGELOG.md"
+            echo "::set-output name=changes::true"
+          fi
 
-      - name: Commit Changelog
+      - name: Commit and Push Changes
+        if: steps.check_changes.outputs.changes == 'true'  # Only run if there are changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Update CHANGELOG"
           file_pattern: CHANGELOG.md
-          branch: update-changelog-${{ github.run_id }}  # Commit to the new branch
+          branch: update-changelog-${{ github.run_id }}
 
       - name: Create Pull Request
+        if: steps.check_changes.outputs.changes == 'true'  # Only run if there are changes
         uses: peter-evans/create-pull-request@v4
         with:
           commit-message: "Update CHANGELOG"
           title: "Update Changelog"
           body: "This PR updates the entire CHANGELOG to include all releases."
-          branch: update-changelog-${{ github.run_id }}  # Match the branch from the previous step
-          base: main  # Target branch for PR
+          branch: update-changelog-${{ github.run_id }}
+          base: main
           delete-branch: true  # Automatically delete branch after merge
