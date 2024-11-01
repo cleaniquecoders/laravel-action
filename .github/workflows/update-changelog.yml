@@ -13,32 +13,34 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      - name: Checkout
+      - name: Checkout Main Branch
         uses: actions/checkout@v2
         with:
-          ref: main  # Ensure you're checking out the main branch
+          ref: main  # Start from the main branch
 
-      - name: Create update-changelog Branch
+      - name: Create Unique Branch for Changelog Update
         run: |
-          git checkout -b update-changelog
+          TIMESTAMP=$(date +%s)
+          git checkout -b update-changelog-$TIMESTAMP
 
       - name: Update Changelog
         uses: stefanzweifel/changelog-updater-action@v1
         with:
-          latest-version: ${{ github.event.release.tag_name }}  # Use tag_name for correct version
+          latest-version: ${{ github.event.release.tag_name }}
           release-notes: ${{ github.event.release.body }}
 
       - name: Commit updated CHANGELOG
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          branch: update-changelog  # Ensure you're on the update-changelog branch
+          branch: update-changelog-${{ github.run_id }}  # Use a unique branch name
           commit_message: "Update CHANGELOG"
           file_pattern: CHANGELOG.md
 
       - name: Push changes and create PR
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v4
         with:
-          branch: update-changelog
+          branch: update-changelog-${{ github.run_id }}
+          base: main  # Target main for the PR
           title: "Automated Update of CHANGELOG"
           body: "This PR was created by GitHub Actions to update the CHANGELOG."
-          delete-branch: true
+          delete-branch: true  # Automatically delete the branch after merging
