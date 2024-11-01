@@ -6,14 +6,6 @@ All notable changes to this project will be documented in this file.
 <a name="{{ .Tag.Name }}"></a>
 ## {{ if .Tag.Previous }}[{{ .Tag.Name }}]{{ else }}{{ .Tag.Name }}{{ end }} - {{ datetime "2006-01-02" .Tag.Date }}
 
-{{ if .Tag.Subject -}}
-> {{ .Tag.Subject }}
-{{ end -}}
-
-{{ if .Tag.Body -}}
-{{ .Tag.Body }}
-{{ end -}}
-
 {{ range .CommitGroups -}}
 ### {{ .Title }}
 {{ range .Commits -}}
