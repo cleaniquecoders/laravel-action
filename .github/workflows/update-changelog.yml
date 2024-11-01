@@ -1,45 +1,54 @@
-name: "Update Changelog"
+name: "Generate Changelog"
 
 on:
   release:
-    types: [released]
+    types: [published]  # Trigger on release publication
+  workflow_dispatch:      # Allows manual trigger of this workflow
 
 permissions:
   contents: write
 
 jobs:
-  update:
+  regenerateChangelog:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-
     steps:
-      - name: Checkout Main Branch
-        uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
-          ref: main  # Start from the main branch
+          fetch-depth: 0  # Fetch full history to access all tags for complete changelog generation
 
-      - name: Create Unique Branch for Changelog Update
+      - name: Install git-chglog
         run: |
-          git checkout -b update-changelog-${{ github.run_id }}
+          curl -o git-chglog -L https://github.com/git-chglog/git-chglog/releases/download/0.9.1/git-chglog_linux_amd64
+          chmod +x git-chglog
 
-      - name: Update Changelog
-        uses: stefanzweifel/changelog-updater-action@v1
-        with:
-          latest-version: ${{ github.event.release.tag_name }}
-          release-notes: ${{ github.event.release.body }}
+      - name: Remove Existing CHANGELOG.md
+        run: |
+          rm -f CHANGELOG.md  # Remove the existing changelog to allow complete regeneration
 
-      - name: Commit updated CHANGELOG
+      - name: Generate New Full CHANGELOG.md
+        run: |
+          ./git-chglog -o CHANGELOG.md  # Generate the entire changelog with all release history
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Required by git-chglog to access repository info
+
+      - name: Clean Up git-chglog
+        run: |
+          rm git-chglog
+
+      - name: Commit and Push Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          branch: update-changelog-${{ github.run_id }}  # Use a unique branch name
-          commit_message: "Update CHANGELOG"
+          commit_message: "Regenerate full CHANGELOG from all tags"
           file_pattern: CHANGELOG.md
+          branch: regenerate-changelog-${{ github.run_id }}  # Unique branch for each run
 
-      - name: Push changes and create PR
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          branch: update-changelog-${{ github.run_id }}
-          base: main  # Target main for the PR
-          title: "Automated Update of CHANGELOG"
-          body: "This PR was created by GitHub Actions to update the CHANGELOG."
-          delete-branch: true  # Automatically delete the branch after merging
+          commit-message: "Regenerate full CHANGELOG"
+          title: "Regenerate Full Changelog"
+          body: "This PR regenerates the entire CHANGELOG to include all releases."
+          branch: regenerate-changelog-${{ github.run_id }}  # Match the branch from the previous step
+          base: main  # Target branch for PR
+          delete-branch: true  # Automatically delete branch after merge
