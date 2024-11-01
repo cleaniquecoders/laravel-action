@@ -41,4 +41,4 @@ jobs:
           branch: update-changelog
           title: "Automated Update of CHANGELOG"
           body: "This PR was created by GitHub Actions to update the CHANGELOG."
-          delete-branch: false
+          delete-branch: true
