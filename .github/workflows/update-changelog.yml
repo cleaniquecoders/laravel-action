@@ -48,7 +48,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.generate.outputs.changes == 'true'
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v7
         id: create-pr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
