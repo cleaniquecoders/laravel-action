@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 
 
+<a name="2.2.0"></a>
+## [2.2.0] - 2025-05-01
+
+### Chore
+- update CHANGELOG.md
+
+### 🔀 Merged
+- Merge pull request [#25](https://github.com/cleaniquecoders/laravel-action/issues/25) from cleaniquecoders/dependabot/github_actions/aglipanci/laravel-pint-action-2.5
+- Merge pull request [#23](https://github.com/cleaniquecoders/laravel-action/issues/23) from cleaniquecoders/dependabot/github_actions/peter-evans/create-pull-request-7
+- Merge pull request [#22](https://github.com/cleaniquecoders/laravel-action/issues/22) from cleaniquecoders/update-changelog-11623357172
+
+
 <a name="2.1.2"></a>
 ## [2.1.2] - 2024-11-01
 
@@ -84,6 +96,7 @@ All notable changes to this project will be documented in this file.
 ## 1.0.0 - 2022-09-11
 
 
+[2.2.0]: https://github.com/cleaniquecoders/laravel-action/compare/2.1.2...2.2.0
 [2.1.2]: https://github.com/cleaniquecoders/laravel-action/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/cleaniquecoders/laravel-action/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/cleaniquecoders/laravel-action/compare/2.0.0...2.1.0
