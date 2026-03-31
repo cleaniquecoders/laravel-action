@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 
 
+<a name="2.3.0"></a>
+## [2.3.0] - 2026-03-31
+
+### Chore
+- add Laravel 13 support - - Update illuminate/* constraints to include ^13.0
+- Update orchestra/testbench to include ^11.0
+- Update pestphp/pest and phpunit version constraints
+- Fix PHPUnit 12 compatibility where needed
+
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply[@anthropic](https://github.com/anthropic).com>
+- update CHANGELOG.md
+
+### Ci
+- add Laravel 13 to GitHub Actions test matrix - - Add Laravel 13.* with Testbench 11.* to CI matrix
+- Update PHP versions and checkout actions
+
+Co-Authored-By: Claude Opus 4.6 (1M context) <noreply[@anthropic](https://github.com/anthropic).com>
+
+### 🔀 Merged
+- Merge pull request [#29](https://github.com/cleaniquecoders/laravel-action/issues/29) from cleaniquecoders/dependabot/github_actions/aglipanci/laravel-pint-action-2.6
+- Merge pull request [#26](https://github.com/cleaniquecoders/laravel-action/issues/26) from cleaniquecoders/update-changelog-14772887914
+
+
 <a name="2.2.0"></a>
 ## [2.2.0] - 2025-05-01
 
@@ -50,12 +73,12 @@ All notable changes to this project will be documented in this file.
 - Merge pull request [#16](https://github.com/cleaniquecoders/laravel-action/issues/16) from cleaniquecoders/dependabot/github_actions/aglipanci/laravel-pint-action-2.4
 
 
-<a name="1.4.0"></a>
-## [1.4.0] - 2024-03-21
-
-
 <a name="1.5.0"></a>
 ## [1.5.0] - 2024-03-21
+
+
+<a name="1.4.0"></a>
+## [1.4.0] - 2024-03-21
 
 ### 🔀 Merged
 - Merge pull request [#13](https://github.com/cleaniquecoders/laravel-action/issues/13) from cleaniquecoders/dependabot/github_actions/aglipanci/laravel-pint-action-2.3.1
@@ -96,14 +119,15 @@ All notable changes to this project will be documented in this file.
 ## 1.0.0 - 2022-09-11
 
 
+[2.3.0]: https://github.com/cleaniquecoders/laravel-action/compare/2.2.0...2.3.0
 [2.2.0]: https://github.com/cleaniquecoders/laravel-action/compare/2.1.2...2.2.0
 [2.1.2]: https://github.com/cleaniquecoders/laravel-action/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/cleaniquecoders/laravel-action/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/cleaniquecoders/laravel-action/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.6.0...2.0.0
-[1.6.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.4.0...1.6.0
-[1.4.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.5.0...1.4.0
-[1.5.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.3.0...1.5.0
+[1.6.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.5.0...1.6.0
+[1.5.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.4.0...1.5.0
+[1.4.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.3.0...1.4.0
 [1.3.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/cleaniquecoders/laravel-action/compare/1.1.3...1.2.0
 [1.1.3]: https://github.com/cleaniquecoders/laravel-action/compare/1.1.2...1.1.3
